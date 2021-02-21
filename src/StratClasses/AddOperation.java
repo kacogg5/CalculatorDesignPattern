@@ -1,9 +1,13 @@
+package StratClasses;
+
+import Interfaces.IBinaryOperation;
+
 /**
- * AddOperation:
+ * StratClasses.AddOperation:
  * implemented by Kaleb Coggins
  * on 2/18/2021
  *
- * Extends IBinaryOperation, preforms addition of a + b.
+ * Extends Interfaces.IBinaryOperation, preforms addition of a + b.
  */
 
 public class AddOperation implements IBinaryOperation {

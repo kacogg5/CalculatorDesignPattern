@@ -1,31 +1,21 @@
-import java.util.Scanner;
+import CompClasses.ExpressionTree;
+
+import java.util.*;
 
 /**
  * CalculatorMain:
  * Implemented by Kaleb Coggins on
  * 2/19/2021
- *
- * Puts into use the operations implementing IOperation.
+ * <p>
+ * Puts into use the operations implementing Interfaces.IOperation.
  * Loops until no input is given.
  */
 
 public class CalculatorMain {
-    // Declare an array of IUnaryOperator Classes
-    final static IUnaryOperation[] unaryOperations = {
-            new SinOperation(),
-            new CosOperation()
-    };
-    // Declare an array of IBinaryOperator Classes
-    final static IBinaryOperation[] binaryOperations = {
-            new AddOperation(),
-            new SubOperation(),
-            new MultOperation()
-    };
-
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        while ( true ) {
+        while (true) {
             int n = 0;
             float[] inputs = new float[2];
             String op = null;
@@ -34,51 +24,86 @@ public class CalculatorMain {
             Scanner line = new Scanner(scanner.nextLine());
 
             // break loop if user gives no input
-            if (!line.hasNext()) { break; }
-
-            // parse input for numbers / operations
-            while ( line.hasNext() ) {
-                String word = line.next();
-
-                try {
-                    // check if word is a number
-                    float x = Float.parseFloat(word);
-                    if (n < 2) {
-                        inputs[n] = x;
-                        n++;
-                    } else {
-                        System.out.println("Too Many operands!");
-                    }
-                } catch (NumberFormatException e) {
-                    // if not a number, assume it is an operation
-                    if (op == null) { op = word; }
-                    else { System.out.println("Too many operations!"); }
-                }
+            if (!line.hasNext()) {
+                break;
             }
 
-            // perform operation
-            boolean f = false;
-            if (n == 0) { System.out.println("Not enough operands!"); }
-            else if (op == null) { System.out.println("No operation specified!"); }
-            else if (n == 1) {
-                for (IUnaryOperation uOp : unaryOperations) {
-                    if ( uOp.name().equals(op) ) {
-                        System.out.println(uOp.calculate(inputs[0]));
-                        f = true;
-                        break;
-                    }
-                }
-            } else {
-                for (IBinaryOperation bOp : binaryOperations) {
-                    if ( bOp.name().equals(op) ) {
-                        System.out.println(bOp.calculate(inputs[0], inputs[1]));
-                        f = true;
-                        break;
-                    }
-                }
+            List<String> postfix = postFixExpression(line);
+
+            for (String s : postfix) {
+                System.out.print(s + " ");
             }
 
-            if (!f) { System.out.println("Operation not found."); }
+            System.out.println();
+
+            ExpressionTree.Node expr = ExpressionTree.constructTree(postfix);
+
+            System.out.println("ans = " + ExpressionTree.evaluateTree(expr));
         }
+    }
+
+    private static List<String> postFixExpression(Scanner line) {
+        Stack<String> stack = new Stack<>();
+        List<String> opList = new LinkedList<>();
+
+        while (line.hasNext()) {
+            String word = line.next();
+
+            boolean num = false;
+            try {
+                float o = Float.parseFloat(word);
+                num = true;
+            } catch (NumberFormatException e) {
+                // Do nothing
+            }
+
+            if (num) {
+                opList.add(word);
+            } else if (word.equals("(")) {
+                stack.push("(");
+            } else if (word.equals("^")) {
+                stack.push("^");
+            } else if (ExpressionTree.isUnaryOperation(word)) {
+                stack.push(word);
+            } else if (word.equals(")")) {
+                while (!stack.peek().equals("(") && !stack.peek().equals(")")) {
+                    opList.add(stack.pop());                // store and pop until ( has found
+                }
+                stack.pop();                                // remove the '(' from stack
+            }else {
+                if (stack.empty() || preced(word) > preced(stack.peek())) {
+                    stack.add(word);                        // push if precedence is high
+                } else {
+                    while (!stack.isEmpty() && preced(word) <= preced(stack.peek())){
+                        opList.add(stack.pop());            // store and pop until higher precedence is found
+                    }
+                    stack.push(word);
+                }
+            }
+        }
+
+        while (!stack.empty()) {
+            opList.add(stack.pop());
+        }
+
+        return opList;
+    }
+
+    private static int preced(String op) {
+        int p = -1;
+        switch (op) {
+            case "^":
+                p = 3;
+                break;
+            case "*":
+            case "/":
+            case "%":
+                p = 2;
+                break;
+            case "+":
+            case "-":
+                p = 1;
+        }
+        return p;
     }
 }

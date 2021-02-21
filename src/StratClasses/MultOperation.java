@@ -1,9 +1,13 @@
+package StratClasses;
+
+import Interfaces.IBinaryOperation;
+
 /**
- * MultOperation:
+ * StratClasses.MultOperation:
  * implemented by Kaleb Coggins
  * on 2/18/2021
  *
- * Extends IBinaryOperation, preforms multiplication of a * b.
+ * Extends Interfaces.IBinaryOperation, preforms multiplication of a * b.
  */
 
 public class MultOperation implements IBinaryOperation {

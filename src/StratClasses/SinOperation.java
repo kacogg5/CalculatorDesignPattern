@@ -1,9 +1,13 @@
+package StratClasses;
+
+import Interfaces.IUnaryOperation;
+
 /**
- * SinOperation:
+ * StratClasses.SinOperation:
  * implemented by Kaleb Coggins
  * on 2/18/2021
  *
- * Implements IUnaryOperation, performs sine operation sin(a).
+ * Implements Interfaces.IUnaryOperation, performs sine operation sin(a).
  */
 
 public class SinOperation implements IUnaryOperation {

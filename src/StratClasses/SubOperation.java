@@ -1,9 +1,13 @@
+package StratClasses;
+
+import Interfaces.IBinaryOperation;
+
 /**
- * SubOperation:
+ * StratClasses.SubOperation:
  * implemented by Kaleb Coggins
  * on 2/18/2021
  *
- * Extends IBinaryOperation, performs subtraction of a - b.
+ * Extends Interfaces.IBinaryOperation, performs subtraction of a - b.
  */
 
 public class SubOperation implements IBinaryOperation {
