@@ -1,6 +1,7 @@
 package CompClasses;
 
 import Interfaces.IBinaryOperation;
+import Interfaces.IConstant;
 import Interfaces.IUnaryOperation;
 import StratClasses.*;
 
@@ -35,6 +36,13 @@ public class ExpressionTree {
         return false;
     }
 
+    public static boolean isConstant(String op) {
+        for (IConstant c: constants) {
+            if (c.name().equals(op)) { return true; }
+        }
+        return false;
+    }
+
     public static boolean isUnaryOperation(String op) {
         for (IUnaryOperation opc: unaryOperations) {
             if (opc.name().equals(op)) { return true; }
@@ -60,7 +68,7 @@ public class ExpressionTree {
         for (String word : postfix) {
 
             // If operand, simply push into stack
-            if (!isOperator(word)) {
+            if ((!isOperator(word)) || isConstant(word)) {
                 t = new Node(word);
                 st.push(t);
             } else if (isUnaryOperation(word)) {
@@ -97,6 +105,10 @@ public class ExpressionTree {
         t = st.peek();
         st.pop();
 
+        if (!st.empty()) {
+            throw new IllegalArgumentException("AHHHHHHHHHHHHHHHHHHH");
+        }
+
         return t;
     }
 
@@ -105,15 +117,30 @@ public class ExpressionTree {
     // Declare an array of IUnaryOperator Classes
     final static IUnaryOperation[] unaryOperations = {
             new SinOperation(),
+            new AsinOperation(),
             new CosOperation(),
-//            new NegativeOperation()
+            new AcosOperation(),
+            new TanOperation(),
+            new AtanOperation(),
+            new SqrtOperation(),
+            new NegativeOperation(),
+            new LogOperation(),
+            new LnOperation()
     };
     // Declare an array of IBinaryOperator Classes
     final static IBinaryOperation[] binaryOperations = {
             new AddOperation(),
             new SubOperation(),
             new MultOperation(),
-            new DivOperation()
+            new DivOperation(),
+            new ModOperation(),
+            new PowOperation(),
+            new XrtOperation()
+    };
+    // Declare an array of IConstant Classes
+    final static IConstant[] constants = {
+            new PiConstant(),
+            new EConstant()
     };
 
 
@@ -132,6 +159,10 @@ public class ExpressionTree {
 
             throw new IllegalArgumentException("Operator not found!");
         } else {
+            for (IConstant c: constants) {
+                if (c.name().equals(n.value)) { return c.calculate(); }
+            }
+
             try { return Float.parseFloat(n.value); }
             catch (NumberFormatException e) { throw new IllegalArgumentException("Unknown symbol " + n.value); }
         }

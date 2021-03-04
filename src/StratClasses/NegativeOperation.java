@@ -11,7 +11,7 @@ import Interfaces.IUnaryOperation;
  */
 
 public class NegativeOperation implements IUnaryOperation {
-    public String name() { return "-"; }
+    public String name() { return "!"; }
 
     public float calculate(float a) {
         return -a;
