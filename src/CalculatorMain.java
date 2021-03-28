@@ -27,6 +27,7 @@ public class CalculatorMain {
     private boolean lastWordHasDot;
     private boolean lastInputNegative;
     private int parenLvl = 0;
+    private int binMode = 0;
 
     public static void main(String[] args) throws InstanceAlreadyExistsException {
         CalculatorMain calculator = new CalculatorMain();
@@ -44,6 +45,7 @@ public class CalculatorMain {
         application.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         application.setMinimumSize(new Dimension(300, 450));
         application.setLayout(new GridBagLayout());
+        application.setResizable(false);
 
         appGBC = new GridBagConstraints();
         appGBC.fill = GridBagConstraints.BOTH;
@@ -62,6 +64,7 @@ public class CalculatorMain {
         this.leftPanelButtons();
         this.numPadButtons();
         this.rightPanelButtons();
+        this.binModeButtons();
 
         application.setVisible(true);
     }
@@ -90,6 +93,19 @@ public class CalculatorMain {
         }
     }
 
+    private class BinaryActionListener implements ActionListener {
+        private final int mode;
+
+        public BinaryActionListener(int mode) {
+            this.mode = mode;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            updateBinaryMode(this.mode);
+        }
+    }
+
     private class ClearActionListener implements ActionListener {
         public ClearActionListener() {}
 
@@ -106,7 +122,7 @@ public class CalculatorMain {
         expressionDisplay.setPreferredSize(new Dimension(300, 50));
         c.gridx = 0;
         c.gridy = 0;
-        c.gridwidth = 4;
+        c.gridwidth = 5;
         c.gridheight = 1;
         this.display.add(expressionDisplay, c);
 
@@ -117,6 +133,14 @@ public class CalculatorMain {
         c.gridwidth = 5;
         c.gridheight = 1;
         this.display.add(resultDisplay, c);
+
+        JLabel binaryDisplay = new JLabel(" ");
+        binaryDisplay.setPreferredSize(new Dimension(300, 50));
+        c.gridx = 0;
+        c.gridy = 2;
+        c.gridwidth = 5;
+        c.gridheight = 1;
+        this.display.add(binaryDisplay, c);
     }
 
     private void numPadButtons() {
@@ -308,6 +332,34 @@ public class CalculatorMain {
         this.application.add(lftBtns, this.appGBC);
     }
 
+    private void binModeButtons() {
+        JPanel binBtns = new JPanel(new GridBagLayout());
+        binBtns.setMinimumSize(new Dimension(300, 25));
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.weightx = c.weighty = 1.0;
+        c.fill = GridBagConstraints.BOTH;
+
+        int i = 0;
+        for (String s : new String[] {"Bin", "Oct", "Hex"}) {
+            JButton btn = new JButton(s);
+            btn.addActionListener(new BinaryActionListener(i));
+            c.gridx = i;
+            c.gridy = 0;
+            c.gridwidth = 1;
+            c.gridheight = 1;
+            binBtns.add(btn, c);
+            i++;
+        }
+
+        this.appGBC.gridx = 0;
+        this.appGBC.gridy = 9;
+        this.appGBC.gridwidth = 5;
+        this.appGBC.gridheight = 1;
+        this.appGBC.fill = GridBagConstraints.BOTH;
+        this.application.add(binBtns, this.appGBC);
+    }
+
     private void buildExpression(String input, boolean isNum) {
         if (lastWordHasDot && input.equals(".")) {
             System.out.print(""); // do nothing
@@ -372,6 +424,15 @@ public class CalculatorMain {
         updateDisplayExpression();
     }
 
+    private String getBinString(float toConvert) {
+        int temp = toConvert % 1 == 0 ? (int)toConvert : Float.floatToIntBits(toConvert);
+        return switch (this.binMode) {
+            case (1) -> ("8x"+Integer.toOctalString(temp));
+            case (2) -> ("16x"+Integer.toHexString(temp));
+            default ->  ("2x"+Integer.toBinaryString(temp));
+        };
+    }
+
     public void clearExpression() {
         userExpression = "";
         actualExpression = "";
@@ -382,6 +443,12 @@ public class CalculatorMain {
 
         updateDisplayExpression();
         updateDisplayResult("");
+        updateBinaryResult("");
+    }
+
+    private void updateBinaryMode(int mode) {
+        this.binMode = mode;
+        this.updateResult();
     }
 
     private void updateDisplayExpression() {
@@ -408,6 +475,9 @@ public class CalculatorMain {
                                     result < Math.pow(10, -10)) ?
                             String.format("%6.3e", result): "" + result;
 
+                    String binStr = getBinString( result );
+
+                    updateBinaryResult(binStr);
                     updateDisplayResult(resultStr);
                 } else {
                     updateDisplayResult("Err: Div By 0");
@@ -422,5 +492,9 @@ public class CalculatorMain {
 
     private void updateDisplayResult(String toDisplay) {
         ((JLabel)this.display.getComponent(1)).setText("= " + toDisplay);
+    }
+
+    private void updateBinaryResult(String toDisplay) {
+        ((JLabel)this.display.getComponent(2)).setText("= " + toDisplay);
     }
 }

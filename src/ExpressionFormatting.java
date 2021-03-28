@@ -6,6 +6,7 @@ import java.util.Scanner;
 import java.util.Stack;
 
 public class ExpressionFormatting {
+    // input string expression,
     public static float solveExpression(String expression) {
         Scanner scanner = new Scanner(expression);
         List<String> postfix = postFixExpression(scanner);
@@ -14,9 +15,6 @@ public class ExpressionFormatting {
         return ExpressionTree.evaluateTree(expr);
     }
 
-    // input : sqrt ( 2| ) + 3
-    // stack : sqrt (
-    // result: 2
     private static List<String> postFixExpression(Scanner line) {
         Stack<String> stack = new Stack<>();
         List<String> opList = new LinkedList<>();
